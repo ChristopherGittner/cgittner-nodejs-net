@@ -1,0 +1,20 @@
+{
+  "name": "cgittner-nodejs-net",
+  "version": "1.0.0",
+  "description": "Networking utilities for Node.js",
+  "main": "dist/index.js",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "license": "ISC",
+  "author": "Christopher Gittner",
+  "dependencies": {
+    "cgittner-nodejs-common": "github:ChristopherGittner/cgittner-nodejs-common",
+    "zod-validation-error": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.12"
+  },
+  "scripts": {
+    "build": "tsc --build --clean && tsc --build"
+  }
+}
