@@ -2,8 +2,7 @@ import EventEmitter from "events";
 import { Socket } from "net";
 import { Log, getErrorMessage } from "cgittner-nodejs-common";
 export class NetClientBase extends EventEmitter {
-    host;
-    port;
+    name;
     socket;
     connected = false;
     started = false;
@@ -11,6 +10,8 @@ export class NetClientBase extends EventEmitter {
     stopResolve;
     stopPromise;
     log;
+    #host;
+    #port;
     /**
      * @param host Hostname or IP Address of the Server
      * @param port Port of the Server
@@ -18,19 +19,46 @@ export class NetClientBase extends EventEmitter {
      */
     constructor(host, port, name) {
         super();
+        this.name = name;
         this.host = host;
         this.port = port;
-        if (name) {
-            this.log = new Log(`${name} @ ${host}:${port}`);
-        }
-        else {
-            this.log = new Log(`${host}:${port}`);
-        }
+        this.setLog();
         this.socket = new Socket();
         this.socket.on('connect', this.handleConnect.bind(this));
         this.socket.on('close', this.handleClose.bind(this));
         this.socket.on('error', this.handleError.bind(this));
         this.socket.on('data', data => this.emit("data", data));
+    }
+    setLog() {
+        this.log = new Log(`${this.name ? `${this.name} @ ` : ''}${this.#host}:${this.#port}`);
+    }
+    get host() {
+        return this.#host;
+    }
+    set host(host) {
+        if (this.#host === undefined) {
+            this.#host = host;
+        }
+        else {
+            this.log.trace(`Host changed from ${this.#host} to ${host} --> Resetting`);
+            this.#host = host;
+            this.setLog();
+            this.reset();
+        }
+    }
+    get port() {
+        return this.#port;
+    }
+    set port(port) {
+        if (this.#port === undefined) {
+            this.#port = port;
+        }
+        else {
+            this.log.trace(`Port changed from ${this.#port} to ${port} --> Resetting`);
+            this.#port = port;
+            this.setLog();
+            this.reset();
+        }
     }
     start() {
         if (this.started) {

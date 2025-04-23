@@ -33,25 +33,59 @@ export abstract class NetClientBase extends EventEmitter {
 
     protected log: Log;
 
+    #host: string;
+    #port: number;
+
     /**
      * @param host Hostname or IP Address of the Server
      * @param port Port of the Server
      * @param name Optional Name for this Client used in Logs
      */
-    constructor(protected host: string, protected port: number, name?: string) {
+    constructor(host: string, port: number, private name?: string) {
         super();
 
-        if (name) {
-            this.log = new Log(`${name} @ ${host}:${port}`);
-        } else {
-            this.log = new Log(`${host}:${port}`);
-        }
+        this.host = host;
+        this.port = port;
+
+        this.setLog();
 
         this.socket = new Socket();
         this.socket.on('connect', this.handleConnect.bind(this));
         this.socket.on('close', this.handleClose.bind(this));
         this.socket.on('error', this.handleError.bind(this));
         this.socket.on('data', data => this.emit("data", data));
+    }
+
+    setLog() {
+        this.log = new Log(`${this.name ? `${this.name} @ ` : ''}${this.#host}:${this.#port}`);
+    }
+
+    get host(): string {
+        return this.#host;
+    }
+    set host(host: string) {
+        if (this.#host === undefined) {
+            this.#host = host;
+        } else {
+            this.log.trace(`Host changed from ${this.#host} to ${host} --> Resetting`);
+            this.#host = host;
+            this.setLog();
+            this.reset();
+        }
+    }
+
+    get port(): number {
+        return this.#port;
+    }
+    set port(port: number) {
+        if (this.#port === undefined) {
+            this.#port = port;
+        } else {
+            this.log.trace(`Port changed from ${this.#port} to ${port} --> Resetting`);
+            this.#port = port;
+            this.setLog();
+            this.reset();
+        }
     }
 
     start(): void {

@@ -16,8 +16,8 @@ export declare interface NetClientBase {
     emit(event: "disconnected"): boolean;
 }
 export declare abstract class NetClientBase extends EventEmitter {
-    protected host: string;
-    protected port: number;
+    #private;
+    private name?;
     protected socket: Socket;
     protected connected: boolean;
     private started;
@@ -31,6 +31,11 @@ export declare abstract class NetClientBase extends EventEmitter {
      * @param name Optional Name for this Client used in Logs
      */
     constructor(host: string, port: number, name?: string);
+    setLog(): void;
+    get host(): string;
+    set host(host: string);
+    get port(): number;
+    set port(port: number);
     start(): void;
     stop(): Promise<void>;
     isStarted(): boolean;
