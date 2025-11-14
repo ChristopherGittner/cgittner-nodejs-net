@@ -7,7 +7,7 @@ import { Log } from "cgittner-nodejs-common";
 export abstract class NetServer {
     log: Log;
 
-    private server: Server;
+    protected server: Server;
 
     /**
      * Constructs a NetServer that will listen on the given Port for new Clients.
