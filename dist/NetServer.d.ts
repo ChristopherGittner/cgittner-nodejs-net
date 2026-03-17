@@ -1,4 +1,5 @@
-import { Socket } from "net";
+/// <reference types="node" resolution-mode="require"/>
+import { Server, Socket } from "net";
 import { Log } from "cgittner-nodejs-common";
 /**
  * A Server that listens on a Port for new Clients.
@@ -6,7 +7,7 @@ import { Log } from "cgittner-nodejs-common";
 export declare abstract class NetServer {
     private port;
     log: Log;
-    private server;
+    protected server: Server;
     /**
      * Constructs a NetServer that will listen on the given Port for new Clients.
      * For each new the onNewClient callback is called
