@@ -1,16 +1,26 @@
 import { createServer } from "net";
-import { Log } from "cgittner-nodejs-common";
+import { Deferred, Log } from "cgittner-nodejs-common";
 /**
- * A Server that listens on a Port for new Clients.
+ * An abstract TCP server that listens for incoming client connections on a given port.
+ * Subclasses implement {@link onNewClient} to handle each new connection.
+ *
+ * @example
+ * class MyServer extends NetServer {
+ *     protected onNewClient(socket: Socket): void {
+ *         socket.on("data", data => console.log(data.toString()));
+ *     }
+ * }
+ *
+ * const server = new MyServer(8080);
+ * server.start();
  */
 export class NetServer {
     port;
     log;
     server;
     /**
-     * Constructs a NetServer that will listen on the given Port for new Clients.
-     * For each new the onNewClient callback is called
-     * @param port The Port that this server listens on
+     * @param port The port to listen on for incoming connections.
+     * @param name Optional label used in log output to identify this server. Defaults to `"NetServer"`.
      */
     constructor(port, name = "NetServer") {
         this.port = port;
@@ -20,8 +30,8 @@ export class NetServer {
         });
     }
     /**
-     * Start the Server. This will allow Clients to connect to the Servers Port
-     * and for each new client the onNewClien Callback is called
+     * Starts the server and begins accepting incoming connections.
+     * For each new connection, {@link onNewClient} is called with the client's socket.
      */
     start() {
         this.log.trace("Starting");
@@ -30,15 +40,23 @@ export class NetServer {
         });
     }
     /**
-     * Stops the Server and prevents new Clients from connecting.
-     * @returns A Promise that is resolved, when the Server has stopped accepting new connections
+     * Stops the server and prevents new clients from connecting.
+     * Existing connections are not forcibly terminated.
+     * @returns A Promise that resolves once the server has fully closed.
      */
     stop() {
+        const deferred = new Deferred();
         this.log.trace("Stopping");
         if (this.server) {
-            this.server.close();
+            this.server.close(() => {
+                this.log.trace("Stopped");
+                deferred.resolve();
+            });
         }
-        this.log.trace("Stopped");
-        return Promise.resolve();
+        else {
+            this.log.trace("Stopped");
+            deferred.resolve();
+        }
+        return deferred.getPromise();
     }
 }

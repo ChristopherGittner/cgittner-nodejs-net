@@ -11,7 +11,7 @@
     "cgittner-nodejs-common": "github:ChristopherGittner/cgittner-nodejs-common"
   },
   "devDependencies": {
-    "@types/node": "^20.17.12"
+    "@types/node": "^20.19.37"
   },
   "scripts": {
     "build": "tsc --build --clean && tsc --build"

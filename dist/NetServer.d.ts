@@ -2,31 +2,43 @@
 import { Server, Socket } from "net";
 import { Log } from "cgittner-nodejs-common";
 /**
- * A Server that listens on a Port for new Clients.
+ * An abstract TCP server that listens for incoming client connections on a given port.
+ * Subclasses implement {@link onNewClient} to handle each new connection.
+ *
+ * @example
+ * class MyServer extends NetServer {
+ *     protected onNewClient(socket: Socket): void {
+ *         socket.on("data", data => console.log(data.toString()));
+ *     }
+ * }
+ *
+ * const server = new MyServer(8080);
+ * server.start();
  */
 export declare abstract class NetServer {
     private port;
     log: Log;
     protected server: Server;
     /**
-     * Constructs a NetServer that will listen on the given Port for new Clients.
-     * For each new the onNewClient callback is called
-     * @param port The Port that this server listens on
+     * @param port The port to listen on for incoming connections.
+     * @param name Optional label used in log output to identify this server. Defaults to `"NetServer"`.
      */
     constructor(port: number, name?: string);
     /**
-     * Start the Server. This will allow Clients to connect to the Servers Port
-     * and for each new client the onNewClien Callback is called
+     * Starts the server and begins accepting incoming connections.
+     * For each new connection, {@link onNewClient} is called with the client's socket.
      */
     start(): void;
     /**
-     * Stops the Server and prevents new Clients from connecting.
-     * @returns A Promise that is resolved, when the Server has stopped accepting new connections
+     * Stops the server and prevents new clients from connecting.
+     * Existing connections are not forcibly terminated.
+     * @returns A Promise that resolves once the server has fully closed.
      */
     stop(): Promise<void>;
     /**
-     * Called when a new client connects
-     * @param socket The socket of the new Connection
+     * Called whenever a new client connects to the server.
+     * Implement this in subclasses to handle incoming connections.
+     * @param socket The socket representing the new client connection.
      */
     protected abstract onNewClient(socket: Socket): void;
 }
