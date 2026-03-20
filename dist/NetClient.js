@@ -1,3 +1,4 @@
+import { connect } from "net";
 import { NetClientBase } from "./NetClientBase.js";
 /**
  * A TCP client that automatically reconnects on connection loss.
@@ -21,7 +22,7 @@ export class NetClient extends NetClientBase {
      * Called automatically by the base class — do not call directly.
      */
     doConnect() {
-        return this.socket.connect({
+        return connect({
             port: this.port,
             host: this.host,
             keepAlive: true,

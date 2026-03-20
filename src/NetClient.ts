@@ -1,4 +1,4 @@
-import { Socket } from "net";
+import { connect, Socket } from "net";
 import { NetClientBase } from "./NetClientBase.js";
 
 /**
@@ -24,7 +24,7 @@ export class NetClient extends NetClientBase {
      * Called automatically by the base class — do not call directly.
      */
     doConnect(): Socket {
-        return this.socket.connect({
+        return connect({
             port: this.port,
             host: this.host,
             keepAlive: true,
