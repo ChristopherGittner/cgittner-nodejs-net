@@ -1,5 +1,5 @@
 import { createServer } from "net";
-import { Deferred, Log } from "cgittner-nodejs-common";
+import { Log } from "cgittner-nodejs-common";
 /**
  * An abstract TCP server that listens for incoming client connections on a given port.
  * Subclasses implement {@link onNewClient} to handle each new connection.
@@ -45,18 +45,12 @@ export class NetServer {
      * @returns A Promise that resolves once the server has fully closed.
      */
     stop() {
-        const deferred = new Deferred();
         this.log.trace("Stopping");
-        if (this.server) {
+        return new Promise(resolve => {
             this.server.close(() => {
                 this.log.trace("Stopped");
-                deferred.resolve();
+                resolve();
             });
-        }
-        else {
-            this.log.trace("Stopped");
-            deferred.resolve();
-        }
-        return deferred.getPromise();
+        });
     }
 }

@@ -1,5 +1,5 @@
 import { connect, Socket } from "net";
-import { NetClientBase } from "./NetClientBase.js";
+import { NetClientBase, NetClientConfig } from "./NetClientBase.js";
 
 /**
  * A TCP client that automatically reconnects on connection loss.
@@ -13,10 +13,10 @@ export class NetClient extends NetClientBase {
     /**
      * @param host Hostname or IP address of the remote server.
      * @param port Port of the remote server.
-     * @param name Optional label used in log output to identify this client.
+     * @param config Optional configuration for this client.
      */
-    constructor(host: string, port: number, name?: string) {
-        super(host, port, name);
+    constructor(host: string, port: number, config?: NetClientConfig) {
+        super(host, port, config);
     }
 
     /**

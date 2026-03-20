@@ -12,10 +12,10 @@ export class NetClient extends NetClientBase {
     /**
      * @param host Hostname or IP address of the remote server.
      * @param port Port of the remote server.
-     * @param name Optional label used in log output to identify this client.
+     * @param config Optional configuration for this client.
      */
-    constructor(host, port, name) {
-        super(host, port, name);
+    constructor(host, port, config) {
+        super(host, port, config);
     }
     /**
      * Initiates a TCP connection with TCP keep-alive enabled.

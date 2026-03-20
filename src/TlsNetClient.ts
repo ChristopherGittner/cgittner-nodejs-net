@@ -1,6 +1,11 @@
 import { Socket } from "net";
 import { connect } from "tls";
-import { NetClientBase } from "./NetClientBase.js";
+import { NetClientBase, NetClientConfig } from "./NetClientBase.js";
+
+export interface TlsNetClientConfig extends NetClientConfig {
+    /** Whether to reject connections with invalid or self-signed certificates. Defaults to `true`. */
+    rejectUnauthorized?: boolean;
+}
 
 /**
  * A TLS-encrypted TCP client that automatically reconnects on connection loss.
@@ -12,17 +17,19 @@ import { NetClientBase } from "./NetClientBase.js";
  *
  * @example
  * // Allow self-signed certificates (e.g. in development)
- * const client = new TlsNetClient("192.168.1.1", 8443, false);
+ * const client = new TlsNetClient("192.168.1.1", 8443, { rejectUnauthorized: false });
  */
 export class TlsNetClient extends NetClientBase {
+    private rejectUnauthorized: boolean;
+
     /**
      * @param host Hostname or IP address of the remote server.
      * @param port Port of the remote server.
-     * @param rejectUnauthorized Whether to reject connections with invalid or self-signed certificates. Defaults to `true`.
-     * @param name Optional label used in log output to identify this client.
+     * @param config Optional configuration for this client.
      */
-    constructor(host: string, port: number, private rejectUnauthorized = true, name?: string) {
-        super(host, port, name);
+    constructor(host: string, port: number, config?: TlsNetClientConfig) {
+        super(host, port, config);
+        this.rejectUnauthorized = config?.rejectUnauthorized ?? true;
     }
 
     /**

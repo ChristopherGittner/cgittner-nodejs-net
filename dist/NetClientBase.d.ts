@@ -22,9 +22,14 @@ export declare interface NetClientBase {
     off(event: "disconnected", listener: () => void): this;
     emit(event: "disconnected"): boolean;
 }
+export interface NetClientConfig {
+    /** Optional label used in log output to identify this client. */
+    name?: string;
+    /** Milliseconds to wait before each reconnection attempt. Defaults to `1000`. */
+    reconnectDelay?: number;
+}
 export declare abstract class NetClientBase extends EventEmitter {
     #private;
-    private name?;
     protected socket: Socket;
     protected connected: boolean;
     private started;
@@ -32,6 +37,8 @@ export declare abstract class NetClientBase extends EventEmitter {
     private stopResolve?;
     private stopPromise?;
     protected log: Log;
+    private name;
+    private reconnectDelay;
     private readonly onConnect;
     private readonly onClose;
     private readonly onError;
@@ -39,11 +46,11 @@ export declare abstract class NetClientBase extends EventEmitter {
     /**
      * @param host Hostname or IP Address of the Server
      * @param port Port of the Server
-     * @param name Optional Name for this Client used in Logs
+     * @param config Optional configuration for this client.
      */
-    constructor(host: string, port: number, name?: string);
+    constructor(host: string, port: number, config?: NetClientConfig);
     /** Updates the logger label to reflect the current host, port, and name. */
-    setLog(): void;
+    private setLog;
     /** The hostname or IP address of the remote server. Setting this while connected triggers a reconnect. */
     get host(): string;
     set host(host: string);
@@ -74,7 +81,7 @@ export declare abstract class NetClientBase extends EventEmitter {
      * @param data The data to send.
      * @throws {Error} If the client is not currently connected.
      */
-    write(data: any): void;
+    write(data: string | Buffer | Uint8Array): void;
     private reconnect;
     /**
      * Creates and returns a new connected Socket. Implemented by subclasses.

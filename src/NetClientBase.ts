@@ -22,6 +22,13 @@ export declare interface NetClientBase {
     emit(event: "disconnected"): boolean;
 }
 
+export interface NetClientConfig {
+    /** Optional label used in log output to identify this client. */
+    name?: string;
+    /** Milliseconds to wait before each reconnection attempt. Defaults to `1000`. */
+    reconnectDelay?: number;
+}
+
 export abstract class NetClientBase extends EventEmitter {
     protected socket: Socket;
     protected connected = false;
@@ -32,6 +39,9 @@ export abstract class NetClientBase extends EventEmitter {
     private stopPromise?: Promise<void>;
 
     protected log: Log;
+
+    private name: string | undefined;
+    private reconnectDelay: number;
 
     #host: string;
     #port: number;
@@ -44,10 +54,13 @@ export abstract class NetClientBase extends EventEmitter {
     /**
      * @param host Hostname or IP Address of the Server
      * @param port Port of the Server
-     * @param name Optional Name for this Client used in Logs
+     * @param config Optional configuration for this client.
      */
-    constructor(host: string, port: number, private name?: string) {
+    constructor(host: string, port: number, config?: NetClientConfig) {
         super();
+
+        this.name = config?.name;
+        this.reconnectDelay = config?.reconnectDelay ?? 1000;
 
         this.host = host;
         this.port = port;
@@ -62,7 +75,7 @@ export abstract class NetClientBase extends EventEmitter {
     }
 
     /** Updates the logger label to reflect the current host, port, and name. */
-    setLog() {
+    private setLog() {
         this.log = new Log(`${this.name ? `${this.name} @ ` : ''}${this.#host}:${this.#port}`);
     }
 
@@ -158,6 +171,8 @@ export abstract class NetClientBase extends EventEmitter {
      * Called automatically when `host` or `port` is changed at runtime.
      */
     reset(): void {
+        if (!this.started) return; // don't reconnect if not started
+
         this.log.trace("Resetting");
 
         this.socket.off('connect', this.onConnect);
@@ -179,7 +194,7 @@ export abstract class NetClientBase extends EventEmitter {
      * @param data The data to send.
      * @throws {Error} If the client is not currently connected.
      */
-    write(data: any): void {
+    write(data: string | Buffer | Uint8Array): void {
         if (!this.connected) {
             throw new Error('Failed to send Data: Not connected');
         }
@@ -205,7 +220,7 @@ export abstract class NetClientBase extends EventEmitter {
             } finally {
                 this.connectTimer = undefined;
             }
-        }, 1000);
+        }, this.reconnectDelay);
     }
 
     /**

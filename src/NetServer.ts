@@ -16,7 +16,7 @@ import { Deferred, Log } from "cgittner-nodejs-common";
  * server.start();
  */
 export abstract class NetServer {
-    log: Log;
+    private log: Log;
 
     protected server: Server;
 
@@ -50,21 +50,14 @@ export abstract class NetServer {
      * @returns A Promise that resolves once the server has fully closed.
      */
     stop(): Promise<void> {
-        const deferred = new Deferred<void>();
-
         this.log.trace("Stopping");
 
-        if (this.server) {
+        return new Promise(resolve => {
             this.server.close(() => {
                 this.log.trace("Stopped");
-                deferred.resolve();
+                resolve();
             });
-        } else {
-            this.log.trace("Stopped");
-            deferred.resolve();
-        }
-
-        return deferred.getPromise();
+        });
     }
 
     /**

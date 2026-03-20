@@ -2,7 +2,6 @@ import EventEmitter from "events";
 import { Socket } from "net";
 import { Log, getErrorMessage } from "cgittner-nodejs-common";
 export class NetClientBase extends EventEmitter {
-    name;
     socket;
     connected = false;
     started = false;
@@ -10,6 +9,8 @@ export class NetClientBase extends EventEmitter {
     stopResolve;
     stopPromise;
     log;
+    name;
+    reconnectDelay;
     #host;
     #port;
     onConnect = this.handleConnect.bind(this);
@@ -19,11 +20,12 @@ export class NetClientBase extends EventEmitter {
     /**
      * @param host Hostname or IP Address of the Server
      * @param port Port of the Server
-     * @param name Optional Name for this Client used in Logs
+     * @param config Optional configuration for this client.
      */
-    constructor(host, port, name) {
+    constructor(host, port, config) {
         super();
-        this.name = name;
+        this.name = config?.name;
+        this.reconnectDelay = config?.reconnectDelay ?? 1000;
         this.host = host;
         this.port = port;
         this.setLog();
@@ -117,6 +119,8 @@ export class NetClientBase extends EventEmitter {
      * Called automatically when `host` or `port` is changed at runtime.
      */
     reset() {
+        if (!this.started)
+            return; // don't reconnect if not started
         this.log.trace("Resetting");
         this.socket.off('connect', this.onConnect);
         this.socket.off('close', this.onClose);
@@ -160,7 +164,7 @@ export class NetClientBase extends EventEmitter {
             finally {
                 this.connectTimer = undefined;
             }
-        }, 1000);
+        }, this.reconnectDelay);
     }
     handleConnect() {
         this.log.info('Connected');

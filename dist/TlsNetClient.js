@@ -10,19 +10,18 @@ import { NetClientBase } from "./NetClientBase.js";
  *
  * @example
  * // Allow self-signed certificates (e.g. in development)
- * const client = new TlsNetClient("192.168.1.1", 8443, false);
+ * const client = new TlsNetClient("192.168.1.1", 8443, { rejectUnauthorized: false });
  */
 export class TlsNetClient extends NetClientBase {
     rejectUnauthorized;
     /**
      * @param host Hostname or IP address of the remote server.
      * @param port Port of the remote server.
-     * @param rejectUnauthorized Whether to reject connections with invalid or self-signed certificates. Defaults to `true`.
-     * @param name Optional label used in log output to identify this client.
+     * @param config Optional configuration for this client.
      */
-    constructor(host, port, rejectUnauthorized = true, name) {
-        super(host, port, name);
-        this.rejectUnauthorized = rejectUnauthorized;
+    constructor(host, port, config) {
+        super(host, port, config);
+        this.rejectUnauthorized = config?.rejectUnauthorized ?? true;
     }
     /**
      * Initiates a TLS connection to the configured host and port.
