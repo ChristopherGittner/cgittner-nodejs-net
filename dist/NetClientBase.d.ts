@@ -7,6 +7,17 @@ export declare interface NetClientBase {
     once(event: "data", listener: (data: Buffer) => void): this;
     off(event: "data", listener: (data: Buffer) => void): this;
     emit(event: "data", data: Buffer): boolean;
+    /**
+     * Emitted synchronously whenever a new underlying `Socket` is created, before it starts
+     * connecting. Consumers that need to attach their own listeners (e.g. `'connect'`) directly
+     * to the socket — rather than going through this class's own `data`/`connected`/`disconnected`
+     * events — must do so from this event, since the socket is replaced on every (re)connect and
+     * its `'connect'`/`'close'` events fire only once per socket instance.
+     */
+    on(event: "socket", listener: (socket: Socket) => void): this;
+    once(event: "socket", listener: (socket: Socket) => void): this;
+    off(event: "socket", listener: (socket: Socket) => void): this;
+    emit(event: "socket", socket: Socket): boolean;
     /** Emitted when a connection to the remote server is established. */
     on(event: "connected", listener: (socket: Socket) => void): this;
     once(event: "connected", listener: (socket: Socket) => void): this;

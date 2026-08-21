@@ -29,6 +29,8 @@ export class NetClientBase extends EventEmitter {
         this.host = host;
         this.port = port;
         this.setLog();
+        // Placeholder only — never actually connected. The first real socket is created by
+        // reconnect() once the subclass constructor (and any of its own listener setup) has run.
         this.socket = new Socket();
         this.socket.on('connect', this.onConnect);
         this.socket.on('close', this.onClose);
@@ -152,6 +154,10 @@ export class NetClientBase extends EventEmitter {
             try {
                 if (!this.stopPromise) {
                     this.socket = this.doConnect();
+                    // Give consumers a chance to attach their own 'connect'/'close' listeners
+                    // before returning control to the event loop, since the real connect (async)
+                    // can't happen until then — attaching later would miss it.
+                    this.emit("socket", this.socket);
                     this.socket.on('connect', this.onConnect);
                     this.socket.on('close', this.onClose);
                     this.socket.on('error', this.onError);

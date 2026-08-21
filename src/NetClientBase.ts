@@ -9,6 +9,18 @@ export declare interface NetClientBase {
     off(event: "data", listener: (data: Buffer) => void): this;
     emit(event: "data", data: Buffer): boolean;
 
+    /**
+     * Emitted synchronously whenever a new underlying `Socket` is created, before it starts
+     * connecting. Consumers that need to attach their own listeners (e.g. `'connect'`) directly
+     * to the socket — rather than going through this class's own `data`/`connected`/`disconnected`
+     * events — must do so from this event, since the socket is replaced on every (re)connect and
+     * its `'connect'`/`'close'` events fire only once per socket instance.
+     */
+    on(event: "socket", listener: (socket: Socket) => void): this;
+    once(event: "socket", listener: (socket: Socket) => void): this;
+    off(event: "socket", listener: (socket: Socket) => void): this;
+    emit(event: "socket", socket: Socket): boolean;
+
     /** Emitted when a connection to the remote server is established. */
     on(event: "connected", listener: (socket: Socket) => void): this;
     once(event: "connected", listener: (socket: Socket) => void): this;
@@ -67,6 +79,8 @@ export abstract class NetClientBase extends EventEmitter {
 
         this.setLog();
 
+        // Placeholder only — never actually connected. The first real socket is created by
+        // reconnect() once the subclass constructor (and any of its own listener setup) has run.
         this.socket = new Socket();
         this.socket.on('connect', this.onConnect);
         this.socket.on('close', this.onClose);
@@ -210,6 +224,10 @@ export abstract class NetClientBase extends EventEmitter {
             try {
                 if (!this.stopPromise) {
                     this.socket = this.doConnect();
+                    // Give consumers a chance to attach their own 'connect'/'close' listeners
+                    // before returning control to the event loop, since the real connect (async)
+                    // can't happen until then — attaching later would miss it.
+                    this.emit("socket", this.socket);
                     this.socket.on('connect', this.onConnect);
                     this.socket.on('close', this.onClose);
                     this.socket.on('error', this.onError);
