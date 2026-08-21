@@ -1,5 +1,5 @@
-/// <reference types="node" resolution-mode="require"/>
 import { Server, Socket } from "net";
+import { Log } from "cgittner-nodejs-common";
 /**
  * An abstract TCP server that listens for incoming client connections on a given port.
  * Subclasses implement {@link onNewClient} to handle each new connection.
@@ -16,7 +16,7 @@ import { Server, Socket } from "net";
  */
 export declare abstract class NetServer {
     private port;
-    private log;
+    protected log: Log;
     protected server: Server;
     /**
      * @param port The port to listen on for incoming connections.

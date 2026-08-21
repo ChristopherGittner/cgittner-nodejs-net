@@ -1,6 +1,6 @@
 {
   "name": "cgittner-nodejs-net",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Networking utilities for Node.js",
   "main": "dist/index.js",
   "type": "module",
@@ -11,7 +11,8 @@
     "cgittner-nodejs-common": "github:ChristopherGittner/cgittner-nodejs-common"
   },
   "devDependencies": {
-    "@types/node": "^20.19.37"
+    "@types/node": "^26.2.0",
+    "typescript": "^7.0.2"
   },
   "scripts": {
     "build": "tsc --build --clean && tsc --build"

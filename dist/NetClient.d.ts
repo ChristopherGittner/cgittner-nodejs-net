@@ -1,4 +1,3 @@
-/// <reference types="node" resolution-mode="require"/>
 import { Socket } from "net";
 import { NetClientBase, NetClientConfig } from "./NetClientBase.js";
 /**

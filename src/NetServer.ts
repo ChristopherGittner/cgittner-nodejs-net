@@ -16,7 +16,7 @@ import { Deferred, Log } from "cgittner-nodejs-common";
  * server.start();
  */
 export abstract class NetServer {
-    private log: Log;
+    protected log: Log;
 
     protected server: Server;
 

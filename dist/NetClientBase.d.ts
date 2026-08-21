@@ -1,7 +1,3 @@
-/// <reference types="node" resolution-mode="require"/>
-/// <reference types="node" resolution-mode="require"/>
-/// <reference types="node" resolution-mode="require"/>
-/// <reference types="node" resolution-mode="require"/>
 import EventEmitter from "events";
 import { Socket } from "net";
 import { Log } from "cgittner-nodejs-common";
